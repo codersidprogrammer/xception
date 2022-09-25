@@ -1,16 +1,21 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
+#include <Servo.h>
 
 const char* ssid = "REPLACE_WITH_YOUR_SSID";
 const char* password = "REPLACE_WITH_YOUR_PASSWORD";
 
-const char* mqtt_server = "test.mosquitto.org";
+const char* mqtt_server = "YOUR_MQTT_BROKER_IP_ADDRESS";
 
+Servo servoMotor;
 WiFiClient espClient;
 PubSubClient client(espClient);
 long lastMsg = 0;
 char msg[50];
 int value = 0;
+
+float temperature = 0;
+float humidity = 0;
 
 
 void setup() {
@@ -18,7 +23,8 @@ void setup() {
   setup_wifi();
   client.setServer(mqtt_server, 1883);
   client.setCallback(callback);
-  pinMode(LED_BUILTIN, OUTPUT);
+  servoMotor.attach(D0);
+  servoMotor.write(0);
 }
 
 void setup_wifi() {
@@ -55,14 +61,7 @@ void callback(char* topic, byte* message, unsigned int length) {
 
   if (String(topic) == "xception/gmf/2809/output") {
     Serial.print("Changing output to ");
-    if(messageTemp == "on"){
-      Serial.println("on");
-      digitalWrite(LED_BUILTIN, HIGH);
-    }
-    else if(messageTemp == "off"){
-      Serial.println("off");
-      digitalWrite(LED_BUILTIN, LOW);
-    }
+    servoMotor.write(messageTemp.toInt());
   }
 }
 
@@ -89,31 +88,4 @@ void loop() {
     reconnect();
   }
   client.loop();
-
-  long now = millis();
-  if (now - lastMsg > 5000) {
-    lastMsg = now;
-    
-    // Temperature in Celsius
-    temperature = bme.readTemperature();   
-    // Uncomment the next line to set temperature in Fahrenheit 
-    // (and comment the previous temperature line)
-    //temperature = 1.8 * bme.readTemperature() + 32; // Temperature in Fahrenheit
-    
-    // Convert the value to a char array
-    char tempString[8];
-    dtostrf(temperature, 1, 2, tempString);
-    Serial.print("Temperature: ");
-    Serial.println(tempString);
-    client.publish("esp32/temperature", tempString);
-
-    humidity = bme.readHumidity();
-    
-    // Convert the value to a char array
-    char humString[8];
-    dtostrf(humidity, 1, 2, humString);
-    Serial.print("Humidity: ");
-    Serial.println(humString);
-    client.publish("esp32/humidity", humString);
-  }
 }
