@@ -1,9 +1,9 @@
-#include <WiFi.h>
+#include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 #include <Servo.h>
 
-const char* ssid = "REPLACE_WITH_YOUR_SSID";
-const char* password = "REPLACE_WITH_YOUR_PASSWORD";
+const char* ssid = "Janganlupasholat";
+const char* password = "bismillah";
 
 const char* mqtt_server = "test.mosquitto.org";
 
@@ -14,16 +14,16 @@ long lastMsg = 0;
 char msg[50];
 int value = 0;
 
-float temperature = 0;
-float humidity = 0;
 
+void setup_wifi();
+void callback(char* topic, byte* message, unsigned int length);
 
 void setup() {
-  Serial.begin(115200); 
+  Serial.begin(9600); 
   setup_wifi();
   client.setServer(mqtt_server, 1883);
   client.setCallback(callback);
-  servoMotor.attach(D0);
+  servoMotor.attach(D2);
   servoMotor.write(0);
 }
 
@@ -70,7 +70,7 @@ void reconnect() {
   while (!client.connected()) {
     Serial.print("Attempting MQTT connection...");
     // Attempt to connect
-    if (client.connect("ESP8266Client")) {
+    if (client.connect("XceptionGMF2708")) {
       Serial.println("connected");
       // Subscribe
       client.subscribe("xception/gmf/2809/output");

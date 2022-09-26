@@ -1,8 +1,8 @@
-#include <WiFi.h>
+#include <ESP8266WiFi.h>
 #include <PubSubClient.h>
 
-const char* ssid = "REPLACE_WITH_YOUR_SSID";
-const char* password = "REPLACE_WITH_YOUR_PASSWORD";
+const char* ssid = "Janganlupasholat";
+const char* password = "bismillah";
 
 const char* mqtt_server = "test.mosquitto.org";
 
@@ -12,9 +12,11 @@ long lastMsg = 0;
 char msg[50];
 int value = 0;
 
+void setup_wifi();
+void callback(char* topic, byte* message, unsigned int length);
 
 void setup() {
-  Serial.begin(115200); 
+  Serial.begin(9600); 
   setup_wifi();
   client.setServer(mqtt_server, 1883);
   client.setCallback(callback);
